@@ -1,0 +1,111 @@
+{
+  "name": "totallytics",
+  "version": "0.1.0",
+  "description": "API analytics middleware for Hono, Cloudflare Workers and Express",
+  "keywords": [
+    "analytics",
+    "api-analytics",
+    "monitoring",
+    "middleware",
+    "hono",
+    "cloudflare-workers",
+    "express"
+  ],
+  "homepage": "https://totallytics.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitgate/totallytics-js.git"
+  },
+  "license": "MIT",
+  "author": "Bitgate",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./hono": {
+      "import": {
+        "types": "./dist/hono.d.ts",
+        "default": "./dist/hono.js"
+      },
+      "require": {
+        "types": "./dist/hono.d.cts",
+        "default": "./dist/hono.cjs"
+      }
+    },
+    "./workers": {
+      "import": {
+        "types": "./dist/workers.d.ts",
+        "default": "./dist/workers.js"
+      },
+      "require": {
+        "types": "./dist/workers.d.cts",
+        "default": "./dist/workers.cjs"
+      }
+    },
+    "./express": {
+      "import": {
+        "types": "./dist/express.d.ts",
+        "default": "./dist/express.js"
+      },
+      "require": {
+        "types": "./dist/express.d.cts",
+        "default": "./dist/express.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "hono": [
+        "./dist/hono.d.ts"
+      ],
+      "workers": [
+        "./dist/workers.d.ts"
+      ],
+      "express": [
+        "./dist/express.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "peerDependencies": {
+    "hono": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "hono": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.20.4",
+    "express": "^5.2.1",
+    "hono": "^4.13.9",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.2"
+  }
+}
