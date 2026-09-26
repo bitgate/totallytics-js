@@ -8,7 +8,13 @@ Scratchpad. Not public-facing.
 - Entries: `.` (core `Totallytics`, `bucket`, types), `./hono`, `./workers`, `./express`. tsup ESM+CJS+d.ts, `platform: neutral`.
 
 ## Status
-- v0.1.0 done, CI green on master (.github/workflows/ci.yml: npm ci, typecheck, test, build, entry smoke). Backend ingest not deployed yet; tests mock fetch.
+- v0.1.0 done, CI green on master (.github/workflows/ci.yml: npm ci, typecheck, test, build, entry smoke). Backend ingest live on prod (bitgate/totallytics PR #39); tests mock fetch.
+
+## Releases (git installs, no npm yet)
+- Consumers pin `"totallytics": "github:bitgate/totallytics-js#v0.1.0"` (lucid.page, ship.page, webhooks.sh). pnpm lockfile resolves it to a codeload tarball, no auth needed.
+- Tag `v0.1.0` = annotated tag on release commit ae728be, NOT on master: master + force-added `dist/`. master keeps dist gitignored.
+- New version: bump package.json + src/version.ts on master, then `npm ci && npm run build && git checkout -b release/vX && git add -f dist && git commit && git tag -a vX && git push origin vX` (push the tag only). Consumers bump the `#vX` pin + lockfile.
+- Never add a `prepare` build instead: pnpm >=10.26 blocks git-dep prepare scripts unless allowlisted per exact commit.
 - Known limits: one API key per middleware instance (key resolved per request, last one wins at seal). Hono `app.all('/x/*', handler)` reports the raw path (indistinguishable from middleware).
 
 ## Layout
