@@ -3,7 +3,7 @@
 Scratchpad. Not public-facing.
 
 ## What this is
-- npm `totallytics` (NOT published, no npm token; don't publish). v0.1.0, MIT, zero runtime deps, private repo.
+- npm `totallytics` (NOT published, no npm token; don't publish; name still unclaimed). v0.1.0, MIT, zero runtime deps. Repo is PUBLIC since 2026-09-26.
 - API analytics middleware for Totallytics (backend: bitgate/totallytics). Wire contract in WIRE.md is FINAL; never change it.
 - Entries: `.` (core `Totallytics`, `bucket`, types), `./hono`, `./workers`, `./express`. tsup ESM+CJS+d.ts, `platform: neutral`.
 
