@@ -7,6 +7,10 @@ Scratchpad. Not public-facing.
 - API analytics middleware for Totallytics (backend: bitgate/totallytics). Wire contract in WIRE.md is FINAL; never change it.
 - Entries: `.` (core `Totallytics`, `bucket`, types), `./hono`, `./workers`, `./express`. tsup ESM+CJS+d.ts, `platform: neutral`.
 
+## Status
+- v0.1.0 done, CI green on master (.github/workflows/ci.yml: npm ci, typecheck, test, build, entry smoke). Backend ingest not deployed yet; tests mock fetch.
+- Known limits: one API key per middleware instance (key resolved per request, last one wins at seal). Hono `app.all('/x/*', handler)` reports the raw path (indistinguishable from middleware).
+
 ## Layout
 - `src/core/client.ts`: `Totallytics` (record/flush, Workers waitUntil scheduling vs Node interval).
 - `src/core/aggregator.ts`: buffer keyed (minute, method, route, status, ua, consumer), 10k key cap, error sample caps 50/20.

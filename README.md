@@ -61,7 +61,7 @@ app.use(errorHandler)
 
 | Option | Default | |
 | --- | --- | --- |
-| `apiKey` | `TOTALLYTICS_API_KEY` | String or function: `(c)` on Hono, `(env)` on Workers, `()` on Express |
+| `apiKey` | `TOTALLYTICS_API_KEY` | String or function: `(c)` on Hono, `(env)` on Workers, `()` on Express. One key per middleware |
 | `consumer` | none | Returns an opaque id for the caller: `(c)`, `(request, env)` or `(req, res)` |
 | `route` | detected | Overrides the route template, same arguments as `consumer` |
 | `ignore` | none | Return `true` to skip a request, same arguments as `consumer` |
