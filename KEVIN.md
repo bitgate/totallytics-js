@@ -9,7 +9,8 @@ Scratchpad. Not public-facing.
 
 ## Status
 - v0.1.1 on npm (`latest`), PR #1 squash 5ccefef. CI (.github/workflows/ci.yml: npm ci, typecheck, test, build, entry smoke) green on master. Backend ingest live on prod (bitgate/totallytics PR #39); tests mock fetch.
-- Consumers moving to `"totallytics": "^0.1.1"` (pnpm 10, frozen lockfiles): lucid.page PR189, ship.page PR228, webhooks.sh PR82.
+- Consumers on npm `"totallytics": "^0.1.1"` (pnpm 10, frozen lockfiles), merged + deployed 2026-09-28: lucid.page PR189 (e611258), ship.page PR228 (3206e7f), webhooks.sh PR82 (db32acd). Deployed Worker bundles (lucid-page, html-drop, wsh-app, wsh-ingress) checked via CF script content: `VERSION = "0.1.1"`.
+- Prod CH `analytics.api_requests` had 0 raw-path routes for all three sites before and after: each consumer's own `route` + `ignore` already templates everything it records (raw paths only in `api_errors.path`, by design). 0.1.1 matters for Hono apps without a full `route` override.
 
 ## Releases (tag -> workflow -> npm)
 - Bump package.json, package-lock.json (top `version` + `packages[""]`), src/version.ts and the `totallytics-js/X` sdk strings in test/*.test.ts. PR, CI green, merge.
