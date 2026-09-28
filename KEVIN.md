@@ -3,19 +3,22 @@
 Scratchpad. Not public-facing.
 
 ## What this is
-- npm `totallytics` (NOT published, no npm token; don't publish; name still unclaimed). v0.1.0, MIT, zero runtime deps. Repo is PUBLIC since 2026-09-26.
-- API analytics middleware for Totallytics (backend: bitgate/totallytics). Wire contract in WIRE.md is FINAL; never change it.
+- npm `totallytics` (https://www.npmjs.com/package/totallytics), first published as v0.1.1 on 2026-09-28, with provenance. MIT, zero runtime deps. Repo is PUBLIC since 2026-09-26.
+- API analytics middleware for Totallytics (backend: bitgate/totallytics). Wire contract in WIRE.md is FINAL; never change it (its `0.1.0` sdk example strings included).
 - Entries: `.` (core `Totallytics`, `bucket`, types), `./hono`, `./workers`, `./express`. tsup ESM+CJS+d.ts, `platform: neutral`.
 
 ## Status
-- v0.1.0 done, CI green on master (.github/workflows/ci.yml: npm ci, typecheck, test, build, entry smoke). Backend ingest live on prod (bitgate/totallytics PR #39); tests mock fetch.
+- v0.1.1 on npm (`latest`), PR #1 squash 5ccefef. CI (.github/workflows/ci.yml: npm ci, typecheck, test, build, entry smoke) green on master. Backend ingest live on prod (bitgate/totallytics PR #39); tests mock fetch.
+- Consumers moving to `"totallytics": "^0.1.1"` (pnpm 10, frozen lockfiles): lucid.page PR189, ship.page PR228, webhooks.sh PR82.
 
-## Releases (git installs, no npm yet)
-- Consumers pin `"totallytics": "github:bitgate/totallytics-js#v0.1.0"` (lucid.page, ship.page, webhooks.sh). pnpm lockfile resolves it to a codeload tarball, no auth needed.
-- Tag `v0.1.0` = annotated tag on release commit ae728be, NOT on master: master + force-added `dist/`. master keeps dist gitignored.
-- New version: bump package.json + src/version.ts on master, then `npm ci && npm run build && git checkout -b release/vX && git add -f dist && git commit && git tag -a vX && git push origin vX` (push the tag only). Consumers bump the `#vX` pin + lockfile.
-- Never add a `prepare` build instead: pnpm >=10.26 blocks git-dep prepare scripts unless allowlisted per exact commit.
-- Known limits: one API key per middleware instance (key resolved per request, last one wins at seal). Hono `app.all('/x/*', handler)` reports the raw path (indistinguishable from middleware).
+## Releases (tag -> workflow -> npm)
+- Bump package.json, package-lock.json (top `version` + `packages[""]`), src/version.ts and the `totallytics-js/X` sdk strings in test/*.test.ts. PR, CI green, merge.
+- `git tag -a vX.Y.Z <merge sha> && git push origin vX.Y.Z` (tag only). `.github/workflows/release.yml` checks tag == package.json version, runs npm ci/typecheck/test/build, then `npm publish --provenance --access public`.
+- Auth: repo secret `NPM_TOKEN` = npm granular bypass-2FA publish token of user `aristotaloss` (set via REST sealed box, fine-grained PAT has secrets write). Token can publish but gets 403 on account calls (`npm profile get`).
+- npm drops direct publish for bypass-2FA tokens ~Jan 2027 (github.blog changelog 2026-07-31). Before that: Bart sets up Trusted Publishing on npmjs.com (needs interactive 2FA: GitHub Actions, bitgate/totallytics-js, release.yml), workflow needs npm >= 11.5.1 (Node 22 ships 10.x), then drop NODE_AUTH_TOKEN.
+- Verify a release: fresh dir `npm i totallytics@X`, ESM + CJS import of all 4 entries, tsc under node16/nodenext/bundler/node10, `npm audit signatures`. The tarball integrity equals local `npm pack` (tsup build is reproducible).
+- Old git-install hack is dead: tag `v0.1.0` (ae728be, force-added dist, off master) stays for history, never on npm. Don't add a `prepare` script.
+- Known limits: one API key per middleware instance (key resolved per request, last one wins at seal). Hono can't tell `app.all('/x/*', h)` from `app.use('/x/*', mw)`: both report their wildcard, so a catch-all app needs `route` to split `/*` further.
 
 ## Layout
 - `src/core/client.ts`: `Totallytics` (record/flush, Workers waitUntil scheduling vs Node interval).
@@ -24,8 +27,10 @@ Scratchpad. Not public-facing.
 - `src/core/runtime.ts`: env key lookup, process shutdown hooks (beforeExit + SIGTERM re-raise when alone), shared state on `Symbol.for('totallytics.state')`.
 
 ## Hono route extraction (verified 4.0.0 and 4.13.9)
-- After `await next()`: `c.req.matchedRoutes` (deprecated getter, exists in all v4) + `c.req.routeIndex` (last dispatched handler).
-- Walk from routeIndex forward, skip `method === 'ALL' && path.endsWith('*')` (middleware). Paths already include basePath/sub-app mount.
+- After `await next()`: `c.req.matchedRoutes` (deprecated getter, exists in all v4) + `c.req.routeIndex` (last dispatched handler; stays 0 on Hono's single-match fast path).
+- Walk from routeIndex forward: first route that isn't `ALL` + `*` wins (the handler, or the one behind a short-circuiting middleware). None: the first `ALL` wildcard from routeIndex, i.e. the one that ran (`/*`, `/api/*`). Nothing usable: `/*`. Never the raw path (v0.1.0 fell back to it, so catch-alls, 404s and scanner junk leaked raw paths).
+- `use('*')` / `all('*')` are stored as `/*`. Paths already include basePath/sub-app mount.
+- Other Hono versions: `npm i hono@4.0.0` in a temp dir, swap it into node_modules/hono, run vitest, swap back.
 - `hono/route` helper only exists from 4.8, so we don't import it (peer is >=4). If Hono 5 drops `matchedRoutes`, switch to `matchedRoutes(c)` from `hono/route`.
 
 ## Verified manually (Sept 2026)
