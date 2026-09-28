@@ -24,7 +24,7 @@ app.get('/users/:id', (c) => c.json({ id: c.req.param('id') }))
 export default app
 ```
 
-Register it first so it sees every request. Routes are reported as templates (`/users/:id`), including sub-apps and `basePath`. On Workers the key comes from `c.env.TOTALLYTICS_API_KEY` and flushing goes through `c.executionCtx.waitUntil`.
+Register it first so it sees every request. Routes are reported as templates (`/users/:id`), including sub-apps and `basePath`. When no concrete route answers (an `app.all('*')` catch-all, a 404, or middleware that responds on its own), the wildcard that ran is reported instead, like `/*` or `/api/*`, never the raw path. Pass `route` to split those further. On Workers the key comes from `c.env.TOTALLYTICS_API_KEY` and flushing goes through `c.executionCtx.waitUntil`.
 
 ## Cloudflare Workers
 

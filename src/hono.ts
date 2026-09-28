@@ -29,6 +29,8 @@ interface MatchedRoute {
   path?: unknown
 }
 
+const CATCH_ALL_ROUTE = '/*'
+
 export function totallytics<E extends Env = any>(options: HonoOptions<E> = {}): TotallyticsMiddleware<E> {
   const { apiKey, consumer, route, ignore, ...config } = options
   const client = new Totallytics({ ...config, integration: 'hono' })
@@ -48,7 +50,7 @@ export function totallytics<E extends Env = any>(options: HonoOptions<E> = {}): 
         {
           method: c.req.method,
           path: c.req.path,
-          route: (route && attempt(() => route(c), log)) || attempt(() => routeTemplate(c), log),
+          route: (route && attempt(() => route(c), log)) || attempt(() => routeTemplate(c), log) || CATCH_ALL_ROUTE,
           status: failed ? 500 : c.res.status,
           durationMs,
           startedAt,
@@ -83,19 +85,23 @@ export function totallytics<E extends Env = any>(options: HonoOptions<E> = {}): 
   return Object.assign(middleware, { flush: () => client.flush() })
 }
 
-// The route that responded, or the first handler behind a middleware that short-circuited
+// The route that responded, the first handler behind a middleware that short-circuited, else the wildcard that ran
 function routeTemplate(c: Context): string | undefined {
   const req = c.req as unknown as { matchedRoutes?: MatchedRoute[]; routeIndex?: number }
   const routes = req.matchedRoutes
   if (!Array.isArray(routes)) return undefined
 
+  let wildcard: string | undefined
   for (let i = req.routeIndex ?? 0; i < routes.length; i++) {
     const candidate = routes[i]
     if (!candidate || typeof candidate.path !== 'string') continue
-    if (candidate.method === 'ALL' && candidate.path.endsWith('*')) continue
+    if (candidate.method === 'ALL' && candidate.path.endsWith('*')) {
+      wildcard ??= candidate.path
+      continue
+    }
     return candidate.path
   }
-  return undefined
+  return wildcard
 }
 
 function waitUntilOf(c: Context): WaitUntil | undefined {
