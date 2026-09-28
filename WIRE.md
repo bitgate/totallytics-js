@@ -61,7 +61,7 @@ One row per aggregation key `(minute, method, route, status, user_agent, consume
 | --- | --- |
 | `minute` | Unix **seconds** of the request start, floored to the minute. Rows older than 7 days are rejected |
 | `method` | Uppercase |
-| `route` | Route template (`/users/:id`) when known, otherwise the raw path without query string. The server collapses id-like segments |
+| `route` | Route template (`/users/:id`) when known, otherwise the raw path without query string. The server collapses id-like segments, and folds 404 rows whose route has no template marker (`:`, `*`, `{`, `<` or `[`) into `/*` |
 | `status` | 100-599 |
 | `user_agent` | Optional. Caller's raw `User-Agent`, truncated to 512 chars |
 | `consumer` | Optional. Opaque id of the API consumer, truncated to 128 chars |

@@ -1,7 +1,7 @@
 {
   "name": "totallytics",
-  "version": "0.1.1",
-  "description": "API analytics middleware for Hono, Cloudflare Workers and Express",
+  "version": "0.2.0",
+  "description": "API analytics middleware for Hono, Cloudflare Workers, Express, Fastify and Next.js",
   "keywords": [
     "analytics",
     "api-analytics",
@@ -9,7 +9,9 @@
     "middleware",
     "hono",
     "cloudflare-workers",
-    "express"
+    "express",
+    "fastify",
+    "nextjs"
   ],
   "homepage": "https://totallytics.com",
   "repository": {
@@ -70,6 +72,26 @@
         "default": "./dist/express.cjs"
       }
     },
+    "./fastify": {
+      "import": {
+        "types": "./dist/fastify.d.ts",
+        "default": "./dist/fastify.js"
+      },
+      "require": {
+        "types": "./dist/fastify.d.cts",
+        "default": "./dist/fastify.cjs"
+      }
+    },
+    "./next": {
+      "import": {
+        "types": "./dist/next.d.ts",
+        "default": "./dist/next.js"
+      },
+      "require": {
+        "types": "./dist/next.d.cts",
+        "default": "./dist/next.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -82,6 +104,12 @@
       ],
       "express": [
         "./dist/express.d.ts"
+      ],
+      "fastify": [
+        "./dist/fastify.d.ts"
+      ],
+      "next": [
+        "./dist/next.d.ts"
       ]
     }
   },
@@ -89,13 +117,22 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "peerDependencies": {
-    "hono": ">=4"
+    "fastify": ">=4",
+    "hono": ">=4",
+    "next": ">=14"
   },
   "peerDependenciesMeta": {
+    "fastify": {
+      "optional": true
+    },
     "hono": {
+      "optional": true
+    },
+    "next": {
       "optional": true
     }
   },
@@ -103,7 +140,10 @@
     "@types/express": "^5.0.6",
     "@types/node": "^22.20.4",
     "express": "^5.2.1",
+    "fastify": "^5.12.5",
+    "fastify4": "npm:fastify@^4.29.1",
     "hono": "^4.13.9",
+    "next": "^16.3.6",
     "tsup": "^8.5.1",
     "typescript": "~5.9.3",
     "vitest": "^5.0.2"

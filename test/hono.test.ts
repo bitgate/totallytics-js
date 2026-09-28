@@ -55,7 +55,7 @@ describe('hono middleware', () => {
     await tt.flush()
 
     expect(calls).toHaveLength(1)
-    expect(calls[0]?.payload.sdk).toBe('totallytics-js/0.1.1 hono')
+    expect(calls[0]?.payload.sdk).toBe('totallytics-js/0.2.0 hono')
     expect(findRow(calls, '/users/:id')).toMatchObject({
       method: 'GET',
       status: 200,

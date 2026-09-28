@@ -112,8 +112,8 @@ describe('express middleware', () => {
     expect(total()).toBe(6)
 
     expect(received[0]?.authorization).toBe(`Bearer ${KEY}`)
-    expect(received[0]?.userAgent).toBe('totallytics-js/0.1.1')
-    expect(received[0]?.payload.sdk).toBe('totallytics-js/0.1.1 express')
+    expect(received[0]?.userAgent).toBe('totallytics-js/0.2.0')
+    expect(received[0]?.payload.sdk).toBe('totallytics-js/0.2.0 express')
 
     const byRoute = new Map(rows().map((row) => [row.route, row]))
     expect(byRoute.get('/users/:id')).toMatchObject({
