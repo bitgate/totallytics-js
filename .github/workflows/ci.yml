@@ -23,5 +23,8 @@ jobs:
 
       - name: Load every entry point
         run: |
-          node --input-type=module -e "for (const entry of ['totallytics', 'totallytics/hono', 'totallytics/workers', 'totallytics/express']) await import(entry)"
-          node -e "for (const entry of ['totallytics', 'totallytics/hono', 'totallytics/workers', 'totallytics/express']) require(entry)"
+          node --input-type=module -e "for (const entry of ['totallytics', 'totallytics/hono', 'totallytics/workers', 'totallytics/express', 'totallytics/fastify', 'totallytics/next']) await import(entry)"
+          node -e "for (const entry of ['totallytics', 'totallytics/hono', 'totallytics/workers', 'totallytics/express', 'totallytics/fastify', 'totallytics/next']) require(entry)"
+
+      - name: Next.js integration
+        run: npm run test:integration

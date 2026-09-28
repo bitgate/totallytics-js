@@ -6,6 +6,8 @@ export default defineConfig({
     hono: 'src/hono.ts',
     workers: 'src/workers.ts',
     express: 'src/express.ts',
+    fastify: 'src/fastify.ts',
+    next: 'src/next.ts',
   },
   format: ['esm', 'cjs'],
   dts: true,

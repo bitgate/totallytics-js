@@ -62,7 +62,7 @@ describe('withTotallytics', () => {
 
     await Promise.all([...first.promises, ...second.promises])
     expect(calls).toHaveLength(1)
-    expect(calls[0]?.payload.sdk).toBe('totallytics-js/0.1.1 workers')
+    expect(calls[0]?.payload.sdk).toBe('totallytics-js/0.2.0 workers')
     expect(calls[0]?.headers.authorization).toBe(`Bearer ${KEY}`)
     expect(findRow(calls, '/users/1')).toMatchObject({ status: 200, user_agent: 'okhttp/4.12.0', consumer: 'cust_42' })
     expect(findRow(calls, '/missing')?.status).toBe(404)
