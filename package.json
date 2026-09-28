@@ -1,6 +1,6 @@
 {
   "name": "totallytics",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "API analytics middleware for Hono, Cloudflare Workers and Express",
   "keywords": [
     "analytics",

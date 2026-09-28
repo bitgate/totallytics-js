@@ -41,12 +41,12 @@ describe('payload', () => {
     expect(call?.headers).toMatchObject({
       authorization: `Bearer ${KEY}`,
       'content-type': 'application/json',
-      'user-agent': 'totallytics-js/0.1.0',
+      'user-agent': 'totallytics-js/0.1.1',
     })
     expect(call?.payload).toEqual({
       v: 1,
       batch_id: expect.stringMatching(/^[A-Za-z0-9_-]{8,64}$/),
-      sdk: 'totallytics-js/0.1.0 test',
+      sdk: 'totallytics-js/0.1.1 test',
       metrics: [
         {
           minute: MINUTE / 1000,

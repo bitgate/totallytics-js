@@ -55,7 +55,7 @@ describe('hono middleware', () => {
     await tt.flush()
 
     expect(calls).toHaveLength(1)
-    expect(calls[0]?.payload.sdk).toBe('totallytics-js/0.1.0 hono')
+    expect(calls[0]?.payload.sdk).toBe('totallytics-js/0.1.1 hono')
     expect(findRow(calls, '/users/:id')).toMatchObject({
       method: 'GET',
       status: 200,
@@ -68,7 +68,7 @@ describe('hono middleware', () => {
     expect(findRow(calls, '/api/posts/:postId', 200)?.count).toBe(1)
     expect(findRow(calls, '/api/posts/:postId', 401)?.count).toBe(1)
     expect(findRow(calls, '/v1/items/:itemId')?.status).toBe(200)
-    expect(findRow(calls, '/nope/123')?.status).toBe(404)
+    expect(findRow(calls, '/*', 404)?.count).toBe(1)
     expect(metricsOf(calls)).toHaveLength(7)
 
     const errors = errorsOf(calls)
@@ -79,6 +79,64 @@ describe('hono middleware', () => {
     })
     expect(errors.find((row) => row.status === 403)?.message).toBe('not yours')
     expect(errors.find((row) => row.status === 401)?.path).toBe('/api/posts/8')
+  })
+
+  it('reports the wildcard of a catch-all handler, not the raw path', async () => {
+    const { calls } = mockIngest()
+    const tt = totallytics({
+      apiKey: KEY,
+      route: (c) => (c.req.path.startsWith('/docs/') ? '/docs/:slug' : undefined),
+    })
+    const app = new Hono()
+    app.use('*', tt)
+    app.get('/users/:id', (c) => c.text('user'))
+    app.all('/x/*', (c) => c.text('x'))
+    app.all('*', (c) => c.text('page'))
+
+    await app.request('/some-slug')
+    await app.request('/another/deep/slug?ref=1')
+    await app.request('/some-slug', { method: 'POST' })
+    await app.request('/x/anything/here')
+    await app.request('/users/5')
+    await app.request('/docs/hello')
+    await tt.flush()
+
+    expect(metricsOf(calls).map((row) => `${row.method} ${row.route} ${row.count}`).sort()).toEqual([
+      'GET /* 2',
+      'GET /docs/:slug 1',
+      'GET /users/:id 1',
+      'GET /x/* 1',
+      'POST /* 1',
+    ])
+  })
+
+  it('reports unmatched requests as the middleware wildcard', async () => {
+    const { calls } = mockIngest()
+    const tt = totallytics({ apiKey: KEY })
+    const app = new Hono()
+    app.use('*', tt)
+
+    expect((await app.request('/wp-login.php')).status).toBe(404)
+    expect((await app.request('/.env?probe=1')).status).toBe(404)
+    await tt.flush()
+
+    expect(metricsOf(calls).map((row) => `${row.route} ${row.status} ${row.count}`)).toEqual(['/* 404 2'])
+  })
+
+  it('reports a short-circuiting middleware by its wildcard when no route is behind it', async () => {
+    const { calls } = mockIngest()
+    const { app, tt } = buildApp()
+
+    expect((await app.request('/api/unknown/9', { headers: { 'x-deny': '1' } })).status).toBe(401)
+    expect((await app.request('/api/unknown/9')).status).toBe(404)
+    expect((await app.request('/api/posts/8', { headers: { 'x-deny': '1' } })).status).toBe(401)
+    await tt.flush()
+
+    expect(metricsOf(calls).map((row) => `${row.route} ${row.status}`).sort()).toEqual([
+      '/api/* 401',
+      '/api/* 404',
+      '/api/posts/:postId 401',
+    ])
   })
 
   it('counts a non-Error throw as 500 and rethrows it', async () => {
